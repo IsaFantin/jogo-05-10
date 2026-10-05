@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberNova 2088: O Cassino do Distrito Krypto</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            900: '#030712',
+                            800: '#0b0f19',
+                            700: '#111827',
+                            neonPink: '#f43f5e',
+                            neonCyan: '#06b6d4',
+                            neonYellow: '#facc15',
+                            neonPurple: '#a855f7'
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both'
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 10px rgba(6, 182, 212, 0.4)' },
+                            '100%': { boxShadow: '0 0 25px rgba(6, 182, 212, 0.8), 0 0 10px rgba(244, 63, 94, 0.6)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .font-cyber {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .cyber-panel {
+            background: rgba(11, 15, 25, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(6, 182, 212, 0.25);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+        }
+        .cyber-card {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        .cyber-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .cyber-button::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .cyber-button:hover::after {
+            left: 100%;
+        }
+        /* Grid Matrix Background */
+        #cyber-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="relative flex flex-col items-center justify-between min-h-screen p-4 sm:p-6 select-none">
+
+    <div id="cyber-grid"></div>
+
+    <!-- Header / HUD Navbar -->
+    <header class="relative z-10 w-full max-w-5xl flex items-center justify-between py-4 px-6 cyber-panel rounded-2xl mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 animate-pulse">
+                <i class="fa-solid fa-microchip text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-cyber font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 text-base sm:text-xl tracking-wider">
+                    CYBERNOVA 2088
+                </h1>
+                <p class="text-[10px] text-cyan-400 tracking-widest uppercase font-cyber">Distrito Krypto • Cassino Quântico</p>
+            </div>
+        </div>
+        
+        <!-- Player Credits & Controls -->
+        <div class="flex items-center space-x-3 sm:space-x-5">
+            <div class="flex items-center space-x-2 bg-gray-900/90 border border-cyan-500/40 px-4 py-2 rounded-xl shadow-inner">
+                <i class="fa-solid fa-coins text-yellow-400"></i>
+                <div class="flex flex-col text-right">
+                    <span class="text-[9px] text-gray-400 uppercase font-cyber">Créditos K</span>
+                    <span id="player-credits" class="font-cyber font-bold text-yellow-400 text-sm sm:text-base">1000</span>
+                </div>
+            </div>
+
+            <button onclick="openRulesModal()" class="w-10 h-10 rounded-xl cyber-card flex items-center justify-center text-cyan-300 hover:text-white hover:border-cyan-400 transition-all shadow" title="Diretrizes do Sistema">
+                <i class="fa-solid fa-terminal text-sm"></i>
+            </button>
+            <button onclick="toggleAudio()" id="audio-btn" class="w-10 h-10 rounded-xl cyber-card flex items-center justify-center text-cyan-300 hover:text-white hover:border-cyan-400 transition-all shadow" title="Interface de Áudio">
+                <i class="fa-solid fa-volume-high text-sm" id="audio-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Arena Container -->
+    <main class="relative z-10 w-full max-w-5xl flex-1 flex flex-col items-center justify-center mb-6">
+        
+        <!-- Terminal Mode Selector View -->
+        <div id="terminal-menu" class="w-full max-w-3xl cyber-panel rounded-3xl p-6 sm:p-10 shadow-2xl transition-all duration-500">
+            <div class="text-center mb-8">
+                <span class="px-4 py-1 text-[11px] font-cyber uppercase tracking-widest text-cyan-300 bg-cyan-950/60 rounded-full border border-cyan-500/40">
+                    [ SELECIONE O PROTOCOLO DE SORTE ]
+                </span>
+                <h2 class="font-cyber text-2xl sm:text-4xl font-black mt-4 text-white tracking-wide">Escolha sua Mesa Quântica</h2>
+                <p class="text-gray-400 text-xs sm:text-sm mt-2 max-w-lg mx-auto">
+                    Gere números estocásticos, faça apostas de alta volatilidade e desafie os algoritmos centrais do distrito.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Protocol 1: Over/Under 50 -->
+                <button onclick="selectProtocol('overunder')" class="group relative cyber-card p-6 rounded-2xl text-left hover:border-cyan-400 transition-all duration-300 hover:-translate-y-1.5 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-dice text-xl"></i>
+                        </div>
+                        <h3 class="font-cyber font-bold text-white group-hover:text-cyan-300 transition-colors text-sm sm:text-base">Quantum Over/Under</h3>
+                        <p class="text-xs text-gray-400 mt-2">Aposte se o número gerado (1-100) estará na faixa baixa ou alta. Multiplicador dinâmico!</p>
+                    </div>
+                    <div class="mt-6 flex items-center justify-between text-xs text-cyan-400 font-cyber font-semibold">
+                        <span>Risco: Baixo/Médio</span>
+                        <i class="fa-solid fa-angles-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+
+                <!-- Protocol 2: Neural Decrypt Matrix -->
+                <button onclick="selectProtocol('decrypt')" class="group relative cyber-card p-6 rounded-2xl text-left hover:border-purple-400 transition-all duration-300 hover:-translate-y-1.5 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-shield-halved text-xl"></i>
+                        </div>
+                        <h3 class="font-cyber font-bold text-white group-hover:text-purple-300 transition-colors text-sm sm:text-base">Cripto-Senha Neural</h3>
+                        <p class="text-xs text-gray-400 mt-2">Quebre o código de 3 dígitos gerado aleatoriamente usando lógica dedutiva e dicas de proximidade.</p>
+                    </div>
+                    <div class="mt-6 flex items-center justify-between text-xs text-purple-400 font-cyber font-semibold">
+                        <span>Risco: Estratégico</span>
+                        <i class="fa-solid fa-angles-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+
+                <!-- Protocol 3: Cyber Roulette Spin -->
+                <button onclick="selectProtocol('roulette')" class="group relative cyber-card p-6 rounded-2xl text-left hover:border-pink-400 transition-all duration-300 hover:-translate-y-1.5 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-dharmachakra text-xl"></i>
+                        </div>
+                        <h3 class="font-cyber font-bold text-white group-hover:text-pink-300 transition-colors text-sm sm:text-base">Roleta de Números K</h3>
+                        <p class="text-xs text-gray-400 mt-2">Acerte o setor ou cor exata gerada por roleta estocástica de alta frequência e multiplique créditos.</p>
+                    </div>
+                    <div class="mt-6 flex items-center justify-between text-xs text-pink-400 font-cyber font-semibold">
+                        <span>Risco: Extremo</span>
+                        <i class="fa-solid fa-angles-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Active Game Table Arena -->
+        <div id="game-arena" class="hidden w-full max-w-3xl cyber-panel rounded-3xl p-6 sm:p-8 shadow-2xl relative transition-all duration-500">
+            
+            <!-- Arena Header Bar -->
+            <div class="flex items-center justify-between pb-4 mb-6 border-b border-gray-800">
+                <button onclick="backToTerminal()" class="flex items-center space-x-2 text-xs font-cyber text-gray-400 hover:text-white bg-gray-800/80 hover:bg-gray-700 px-3.5 py-2 rounded-xl transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Terminais</span>
+                </button>
+                <div class="text-center">
+                    <h3 id="arena-title" class="font-cyber font-extrabold text-white text-base sm:text-lg tracking-wide">PROTOCOLO ATIVO</h3>
+                    <p id="arena-subtitle" class="text-[11px] text-cyan-400 font-cyber">Status: Pronto para Execução</p>
+                </div>
+                <div class="flex items-center space-x-2 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-coins text-yellow-400 text-xs"></i>
+                    <span id="arena-credits-display" class="text-xs font-cyber font-bold text-yellow-400">1000 K</span>
+                </div>
+            </div>
+
+            <!-- BETTING AMOUNT CONTROL BAR -->
+            <div id="bet-control-bar" class="flex flex-wrap items-center justify-between gap-3 bg-gray-900/70 p-3 rounded-2xl border border-gray-800 mb-6">
+                <div class="flex items-center space-x-2 text-xs text-gray-300 font-cyber">
+                    <i class="fa-solid fa-sliders text-cyan-400"></i>
+                    <span>APOSTA:</span>
+                    <span id="current-bet-val" class="font-bold text-yellow-400 text-sm">50</span>
+                    <span>K</span>
+                </div>
+                <div class="flex items-center space-x-1.5">
+                    <button onclick="adjustBet(-50)" class="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 font-cyber">-50</button>
+                    <button onclick="adjustBet(-10)" class="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 font-cyber">-10</button>
+                    <button onclick="adjustBet(10)" class="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 font-cyber">+10</button>
+                    <button onclick="adjustBet(50)" class="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 font-cyber">+50</button>
+                    <button onclick="maxBet()" class="px-3 py-1 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/40 border border-cyan-500/40 text-xs text-cyan-300 font-cyber font-bold">MÁX</button>
+                </div>
+            </div>
+
+            <!-- DYNAMIC PROTOCOL MODULES -->
+
+            <!-- MODULE 1: Quantum Over/Under -->
+            <div id="module-overunder" class="game-module hidden flex flex-col items-center py-4">
+                <div class="w-40 h-40 rounded-3xl cyber-card flex flex-col items-center justify-center mb-6 shadow-2xl relative border border-cyan-500/40">
+                    <div class="absolute inset-0 bg-cyan-500/5 rounded-3xl animate-pulse pointer-events-none"></div>
+                    <span class="text-[10px] uppercase font-cyber tracking-widest text-cyan-400 mb-1">Número Gerado</span>
+                    <span id="ou-number-display" class="font-cyber text-6xl font-black text-white">??</span>
+                    <span id="ou-result-badge" class="text-[10px] text-gray-400 mt-1 font-cyber">Aguardando jogada</span>
+                </div>
+
+                <p class="text-gray-300 text-xs sm:text-sm mb-6 text-center font-cyber">O número gerado aleatoriamente (1 a 100) será <span class="text-cyan-400 font-bold">BAIXO</span> (1-50) ou <span class="text-pink-400 font-bold">ALTO</span> (51-100)?</p>
+
+                <div class="grid grid-cols-2 gap-4 w-full max-w-md">
+                    <button onclick="playOverUnder('low')" class="cyber-button cyber-card border border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/10 py-4 px-6 rounded-2xl flex flex-col items-center transition-all shadow-lg active:scale-95">
+                        <span class="font-cyber font-extrabold text-cyan-400 text-base mb-1">BAIXO (1-50)</span>
+                        <span class="text-[10px] text-gray-400">Pág. 1.95x</span>
+                    </button>
+                    <button onclick="playOverUnder('high')" class="cyber-button cyber-card border border-pink-500/40 hover:border-pink-400 hover:bg-pink-500/10 py-4 px-6 rounded-2xl flex flex-col items-center transition-all shadow-lg active:scale-95">
+                        <span class="font-cyber font-extrabold text-pink-400 text-base mb-1">ALTO (51-100)</span>
+                        <span class="text-[10px] text-gray-400">Pág. 1.95x</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE 2: Neural Decrypt Matrix -->
+            <div id="module-decrypt" class="game-module hidden flex flex-col items-center py-2">
+                <div class="text-center mb-4">
+                    <span id="decrypt-status" class="text-xs font-cyber text-purple-400">Insira um número de 3 dígitos (100 - 999):</span>
+                </div>
+
+                <!-- Digits Display Slots -->
+                <div class="flex space-x-3 mb-6" id="decrypt-slots">
+                    <div class="w-16 h-20 rounded-2xl cyber-card flex items-center justify-center font-cyber font-black text-3xl text-purple-300 border border-purple-500/40" id="slot-0">?</div>
+                    <div class="w-16 h-20 rounded-2xl cyber-card flex items-center justify-center font-cyber font-black text-3xl text-purple-300 border border-purple-500/40" id="slot-1">?</div>
+                    <div class="w-16 h-20 rounded-2xl cyber-card flex items-center justify-center font-cyber font-black text-3xl text-purple-300 border border-purple-500/40" id="slot-2">?</div>
+                </div>
+
+                <div class="flex items-center space-x-2 w-full max-w-sm mb-4">
+                    <input type="number" id="decrypt-input" min="100" max="999" placeholder="Ex: 450" class="w-full bg-gray-900 border border-purple-500/40 rounded-2xl px-4 py-3 text-center font-cyber text-lg font-bold text-white focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 shadow-inner">
+                    <button onclick="submitDecryptGuess()" class="cyber-button bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-cyber font-bold px-6 py-3 rounded-2xl shadow-lg shadow-purple-500/25 transition-all">
+                        <i class="fa-solid fa-lock-open"></i>
+                    </button>
+                </div>
+
+                <div id="decrypt-history" class="w-full max-w-md bg-gray-900/60 p-3 rounded-2xl border border-gray-800 text-xs font-cyber text-gray-400 h-28 overflow-y-auto space-y-1">
+                    <div class="text-purple-400">[SISTEMA] Conexão Neural estabelecida. Dicas de aproximação ativadas.</div>
+                </div>
+            </div>
+
+            <!-- MODULE 3: Cyber Roulette Spin -->
+            <div id="module-roulette" class="game-module hidden flex flex-col items-center py-4">
+                <div class="w-48 h-48 rounded-full cyber-card flex flex-col items-center justify-center mb-6 shadow-2xl relative border-2 border-pink-500/50">
+                    <div class="absolute inset-0 rounded-full bg-pink-500/5 animate-pulse pointer-events-none"></div>
+                    <span id="roulette-number" class="font-cyber text-6xl font-black text-white">00</span>
+                    <span id="roulette-color-label" class="text-xs font-cyber text-pink-400 mt-1 uppercase">Neutro</span>
+                </div>
+
+                <p class="text-gray-300 text-xs mb-4 text-center font-cyber">Selecione o setor da roleta estocástica (0-36):</p>
+
+                <div class="grid grid-cols-3 gap-3 w-full max-w-md mb-6">
+                    <button onclick="playRoulette('red')" class="cyber-button cyber-card border border-red-500/40 hover:bg-red-500/20 py-3 rounded-2xl flex flex-col items-center">
+                        <span class="font-cyber font-bold text-red-400 text-xs">VERMELHO (Pág. 2x)</span>
+                        <span class="text-[9px] text-gray-400">1, 3, 5... 35</span>
+                    </button>
+                    <button onclick="playRoulette('green')" class="cyber-button cyber-card border border-emerald-500/40 hover:bg-emerald-500/20 py-3 rounded-2xl flex flex-col items-center">
+                        <span class="font-cyber font-bold text-emerald-400 text-xs">ZEROFLEX (Pág. 14x)</span>
+                        <span class="text-[9px] text-gray-400">Número 0</span>
+                    </button>
+                    <button onclick="playRoulette('black')" class="cyber-button cyber-card border border-cyan-500/40 hover:bg-cyan-500/20 py-3 rounded-2xl flex flex-col items-center">
+                        <span class="font-cyber font-bold text-cyan-400 text-xs">CYBER AZUL (Pág. 2x)</span>
+                        <span class="text-[9px] text-gray-400">2, 4, 6... 36</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Guidelines / Rules -->
+    <div id="rules-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden transition-opacity">
+        <div class="cyber-panel w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-cyan-500/40 relative">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-800">
+                <h3 class="font-cyber font-extrabold text-white text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-terminal text-cyan-400"></i>
+                    <span>Diretrizes do Distrito Krypto</span>
+                </h3>
+                <button onclick="closeRulesModal()" class="w-8 h-8 rounded-lg bg-gray-800 text-gray-400 hover:text-white flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs sm:text-sm text-gray-300 font-cyber">
+                <div class="flex items-start space-x-3">
+                    <div class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">1</div>
+                    <p><strong class="text-white">Quantum Over/Under:</strong> Aposte seus créditos prevendo se o número gerado estocasticamente será menor ou igual a 50 (Baixo) ou maior que 50 (Alto).</p>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">2</div>
+                    <p><strong class="text-white">Cripto-Senha Neural:</strong> Quebre uma senha de 3 dígitos gerada aleatoriamente. O sistema indicará se o número correto é maior ou menor a cada tentativa.</p>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="w-6 h-6 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">3</div>
+                    <p><strong class="text-white">Roleta de Números K:</strong> Escolha entre Vermelho, Azul ou Zeroflex e multiplique seus créditos com base no giro da roleta estocástica de 0 a 36.</p>
+                </div>
+            </div>
+            <div class="mt-6 pt-4 border-t border-gray-800 text-center">
+                <button onclick="closeRulesModal()" class="cyber-button bg-cyan-600 hover:bg-cyan-500 text-white font-cyber font-bold px-6 py-2.5 rounded-xl shadow-lg transition-all text-xs">
+                    Entendido, Conectar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="relative z-10 w-full max-w-5xl text-center text-xs text-gray-500 font-cyber py-2">
+        CyberNova 2088 • Powered by Web Audio API & Random Number Matrix
+    </footer>
+
+    <!-- JavaScript Game Engine -->
+    <script>
+        // --- GLOBAL STATE & CREDITS ---
+        let playerCredits = parseInt(localStorage.getItem('cyber_credits') || '1000');
+        let currentBet = 50;
+        let audioEnabled = true;
+        let currentProtocol = null;
+
+        updateCreditsDisplay();
+
+        function updateCreditsDisplay() {
+            document.getElementById('player-credits').textContent = playerCredits;
+            document.getElementById('arena-credits-display').textContent = playerCredits + ' K';
+            localStorage.setItem('cyber_credits', playerCredits);
+        }
+
+        // --- WEB AUDIO API SYNTHESIZER ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playCyberSound(freq, type, duration) {
+            if (!audioEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                // Ignore audio context restrictions
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            if (audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-sm';
+                playCyberSound(587.33, 'sine', 0.15);
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-sm';
+            }
+        }
+
+        // --- BETTING CONTROLS ---
+        function adjustBet(amount) {
+            currentBet = Math.max(10, Math.min(playerCredits, currentBet + amount));
+            document.getElementById('current-bet-val').textContent = currentBet;
+            playCyberSound(440, 'sine', 0.08);
+        }
+
+        function maxBet() {
+            currentBet = Math.max(10, playerCredits);
+            document.getElementById('current-bet-val').textContent = currentBet;
+            playCyberSound(660, 'sine', 0.1);
+        }
+
+        // --- MODALS ---
+        function openRulesModal() {
+            document.getElementById('rules-modal').classList.remove('hidden');
+            playCyberSound(520, 'sine', 0.1);
+        }
+        function closeRulesModal() {
+            document.getElementById('rules-modal').classList.add('hidden');
+        }
+
+        // --- TERMINAL NAVIGATION ---
+        function selectProtocol(protocol) {
+            currentProtocol = protocol;
+            document.getElementById('terminal-menu').classList.add('hidden');
+            document.getElementById('game-arena').classList.remove('hidden');
+            
+            document.querySelectorAll('.game-module').forEach(m => m.classList.add('hidden'));
+
+            if (protocol === 'overunder') {
+                document.getElementById('arena-title').textContent = 'QUANTUM OVER/UNDER';
+                document.getElementById('arena-subtitle').textContent = 'Preveja a faixa do número estocástico';
+                document.getElementById('module-overunder').classList.remove('hidden');
+            } else if (protocol === 'decrypt') {
+                document.getElementById('arena-title').textContent = 'CRIPTO-SENHA NEURAL';
+                document.getElementById('arena-subtitle').textContent = 'Decodifique o código de 3 dígitos';
+                document.getElementById('module-decrypt').classList.remove('hidden');
+                initDecryptGame();
+            } else if (protocol === 'roulette') {
+                document.getElementById('arena-title').textContent = 'ROLETA DE NÚMEROS K';
+                document.getElementById('arena-subtitle').textContent = 'Gire o tambor estocástico';
+                document.getElementById('module-roulette').classList.remove('hidden');
+            }
+            playCyberSound(500, 'triangle', 0.15);
+        }
+
+        function backToTerminal() {
+            document.getElementById('game-arena').classList.add('hidden');
+            document.getElementById('terminal-menu').classList.remove('hidden');
+            currentProtocol = null;
+            playCyberSound(350, 'sine', 0.15);
+        }
+
+        // ==========================================
+        // MODULE 1: QUANTUM OVER/UNDER
+        // ==========================================
+        function playOverUnder(choice) {
+            if (playerCredits < currentBet) {
+                alertUser('Créditos insuficientes para esta aposta!');
+                return;
+            }
+
+            playerCredits -= currentBet;
+            updateCreditsDisplay();
+            playCyberSound(300, 'sawtooth', 0.2);
+
+            // Generate random number 1 to 100
+            const generated = Math.floor(Math.random() * 100) + 1;
+            const isHigh = generated > 50;
+            const won = (choice === 'high' && isHigh) || (choice === 'low' && !isHigh);
+
+            document.getElementById('ou-number-display').textContent = generated;
+
+            const badge = document.getElementById('ou-result-badge');
+            if (won) {
+                const payout = Math.floor(currentBet * 1.95);
+                playerCredits += payout;
+                updateCreditsDisplay();
+                badge.textContent = `VITÓRIA! +${payout} K`;
+                badge.className = 'text-[10px] text-emerald-400 mt-1 font-cyber font-bold';
+                playCyberSound(880, 'sine', 0.4);
+            } else {
+                badge.textContent = `DERROTA! -${currentBet} K`;
+                badge.className = 'text-[10px] text-pink-400 mt-1 font-cyber font-bold';
+                playCyberSound(180, 'sawtooth', 0.4);
+            }
+        }
+
+        // ==========================================
+        // MODULE 2: NEURAL DECRYPT MATRIX
+        // ==========================================
+        let decryptTarget = 0;
+        let decryptAttempts = 0;
+
+        function initDecryptGame() {
+            decryptTarget = Math.floor(Math.random() * 900) + 100; // 100 to 999
+            decryptAttempts = 0;
+            document.getElementById('slot-0').textContent = '?';
+            document.getElementById('slot-1').textContent = '?';
+            document.getElementById('slot-2').textContent = '?';
+            document.getElementById('decrypt-input').value = '';
+            document.getElementById('decrypt-history').innerHTML = '<div class="text-purple-400">[SISTEMA] Nova senha estocástica gerada. Insira seu palpite.</div>';
+        }
+
+        function submitDecryptGuess() {
+            const val = parseInt(document.getElementById('decrypt-input').value);
+            if (isNaN(val) || val < 100 || val > 999) {
+                playCyberSound(150, 'sawtooth', 0.2);
+                return;
+            }
+
+            if (playerCredits < currentBet && decryptAttempts === 0) {
+                alertUser('Créditos insuficientes!');
+                return;
+            }
+
+            decryptAttempts++;
+            playCyberSound(450, 'sine', 0.15);
+            const historyBox = document.getElementById('decrypt-history');
+
+            if (val === decryptTarget) {
+                const reward = currentBet * 5;
+                playerCredits += reward;
+                updateCreditsDisplay();
+
+                document.getElementById('slot-0').textContent = decryptTarget.toString()[0];
+                document.getElementById('slot-1').textContent = decryptTarget.toString()[1];
+                document.getElementById('slot-2').textContent = decryptTarget.toString()[2];
+
+                historyBox.innerHTML += `<div class="text-emerald-400 font-bold">[SUCESSO] Senha decifrada! Recompensa: +${reward} K</div>`;
+                playCyberSound(950, 'triangle', 0.5);
+                setTimeout(initDecryptGame, 3000);
+            } else {
+                let hint = val < decryptTarget ? 'SENHA MAIOR 📈' : 'SENHA MENOR 📉';
+                historyBox.innerHTML += `<div class="text-gray-300">Tentativa #${decryptAttempts} (${val}): ${hint}</div>`;
+                historyBox.scrollTop = historyBox.scrollHeight;
+                document.getElementById('decrypt-input').value = '';
+            }
+        }
+
+        // ==========================================
+        // MODULE 3: CYBER ROULETTE SPIN
+        // ==========================================
+        function playRoulette(betType) {
+            if (playerCredits < currentBet) {
+                alertUser('Créditos insuficientes!');
+                return;
+            }
+
+            playerCredits -= currentBet;
+            updateCreditsDisplay();
+            playCyberSound(250, 'sawtooth', 0.3);
+
+            // Generate random 0 to 36
+            const spinResult = Math.floor(Math.random() * 37);
+            document.getElementById('roulette-number').textContent = spinResult < 10 ? '0' + spinResult : spinResult;
+
+            let resultColor = 'green';
+            if (spinResult !== 0) {
+                resultColor = (spinResult % 2 === 0) ? 'black' : 'red';
+            }
+
+            const colorLabel = document.getElementById('roulette-color-label');
+            colorLabel.textContent = resultColor.toUpperCase();
+
+            let won = false;
+            let multiplier = 2;
+
+            if (betType === 'green' && spinResult === 0) {
+                won = true;
+                multiplier = 14;
+            } else if (betType === 'red' && resultColor === 'red') {
+                won = true;
+                multiplier = 2;
+            } else if (betType === 'black' && resultColor === 'black') {
+                won = true;
+                multiplier = 2;
+            }
+
+            if (won) {
+                const winAmt = currentBet * multiplier;
+                playerCredits += winAmt;
+                updateCreditsDisplay();
+                colorLabel.textContent += ` - VITÓRIA (+${winAmt} K)!`;
+                colorLabel.className = 'text-xs font-cyber text-emerald-400 mt-1 uppercase font-bold';
+                playCyberSound(900, 'sine', 0.4);
+            } else {
+                colorLabel.textContent += ' - PERDEU';
+                colorLabel.className = 'text-xs font-cyber text-pink-400 mt-1 uppercase font-bold';
+                playCyberSound(180, 'sawtooth', 0.4);
+            }
+        }
+
+        function alertUser(msg) {
+            const historyBox = document.getElementById('decrypt-history');
+            if (historyBox) {
+                historyBox.innerHTML += `<div class="text-yellow-400">[ALERTA] ${msg}</div>`;
+            } else {
+                alert(msg);
+            }
+        }
+    </script>
+</body>
+</html>
